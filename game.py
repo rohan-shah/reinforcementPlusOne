@@ -41,21 +41,27 @@ class game:
                 for (x, y) in indices:
                     self._board[y, x] = -1
                 if currentValue == self._max:
+                    nextLevel = True
                     currentMin = np.min(self._board)
                     for row in range(0, 5):
                         for column in range(0, 5):
                             if self._board[row, column] == currentMin:
                                 self._board[row, column] = -1
                     self.increment_range()
-                import pdb; pdb.set_trace()
+                else:
+                    nextLevel = False
+                self._board[y, x] = currentValue + 1
                 self.shift_down()
                 self.fill()
-                return(1)
-            return(0)
+                if nextLevel:
+                    return(1)
+                else:
+                    return(0)
+            return(-1)
 
     def increment_range(self):
         self._max = self._max + 1
-        self._min = min(1, self._max - 8)
+        self._min = max(1, self._max - 8)
 
     def shift_down(self):
         for column in range(0, 5):
@@ -71,4 +77,19 @@ class game:
         for column in range(0, 5):
             for row in range(0, 5):
                 if self._board[row, column] == -1:
-                    self._board[row, column] = np.random.randint(low = self._min, high = self._max+1)
+                    self._board[row, column] = np.random.randint(low = self._min, high = self._max)
+    
+    def isValidMove(self, x, y):
+        if x < 0 or y < 0 or x >= 5 or y >= 5:
+            return(False)
+        currentValue = self._board[y, x]
+        directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+        targets = [(direction[0] + y, direction[1] + x) for direction in directions]
+        targets = [(y, x) for (y, x) in targets if not (x < 0 or y < 0 or x >= 5 or y >= 5)]
+        values = [self._board[y, x] for (y, x) in targets]
+        return(currentValue in values)
+
+    def isFailed(self):
+        if np.all(self._board[1:, :] != self._board[:-1, :]) and np.all(self._board[:, 1:] != self._board[:, :-1]):
+            return(True)
+        return(False)
