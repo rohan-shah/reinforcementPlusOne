@@ -1,0 +1,7 @@
+include changePoint/libchangePoint_python.pyd
+include changePoint/changePoint.dll
+include changePoint/boost_*
+include changePoint/mpfr.dll
+include changePoint/mpir.dll
+include changePoint/tiff.dll
+include changePoint/opencv_*
