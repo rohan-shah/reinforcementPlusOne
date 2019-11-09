@@ -18,7 +18,9 @@ set_target_properties(plusOne PROPERTIES
     PUBLIC_HEADER "${HEADER_FILES}"
     CXX_STANDARD 14
     )
-
+target_link_libraries(plusOne PUBLIC
+    Eigen3::Eigen
+    )
 # ====================================================================
 # plusOne_python
 

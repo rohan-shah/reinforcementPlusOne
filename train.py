@@ -1,10 +1,10 @@
+import plusOne
 from tqdm import *
-from game import *
 import os
 import torch
 import torch.nn
 import torch.optim
-from network import plusOnePlayer
+from networkCategorical import plusOnePlayer
 
 discount = 0.9
 steps = 50
@@ -18,7 +18,13 @@ reward_failure = -1000
 keep_proportion = 0.1
 
 def standardiseData(game):
-    return((game._board - game._max + 8) / 8)
+    board = game.getBoard()
+    data = np.zeros(shape = (5, 5, 8))
+    values = (board - game.getMax() + 7)
+    for x in range(0, 5):
+        for y in range(0, 5):
+            data[y, x, values[y, x]] = 1
+    return(data)
 
 loss_function = torch.nn.MSELoss()
 
@@ -33,8 +39,8 @@ if os.path.exists("models/model2"):
     model2.load_state_dict(torch.load("models/model2"))
     print("Loading model 2")
 
-optimizer1 = torch.optim.SGD(model1.parameters(), lr=0.001, momentum=0.9)
-optimizer2 = torch.optim.SGD(model2.parameters(), lr=0.001, momentum=0.9)
+optimizer1 = torch.optim.SGD(model1.parameters(), lr=0.01, momentum=0.9)
+optimizer2 = torch.optim.SGD(model2.parameters(), lr=0.01, momentum=0.9)
 
 counter = 0
 while True:
@@ -47,7 +53,7 @@ while True:
         for modelIndex in range(0, 2):
             model = models[modelIndex]
             otherModel = models[1 - modelIndex]
-            currentGame = game()
+            currentGame = plusOne.game()
             for stepIndex in range(0, steps):
                 startingState = standardiseData(currentGame)
                 #Choose a random action

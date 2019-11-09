@@ -29,7 +29,7 @@ class plusOneStateChange(nn.Module):
 
     def forward(self, x):
         for layer in self._layers:
-            x = F.relu(layer(x))
+            x = F.leaky_relu(layer(x))
         return(x)
 
 class plusOneValidMove(nn.Module):
@@ -44,5 +44,5 @@ class plusOneValidMove(nn.Module):
 
     def forward(self, x):
         for layer in self._layers:
-            x = F.relu(layer(x))
+            x = F.leaky_relu(layer(x))
         return(x)
