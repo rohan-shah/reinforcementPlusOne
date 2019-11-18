@@ -23,18 +23,18 @@ namespace plusOne
 			break;
 		}
 	}
-	Game::Game()
-		: min(1), max(7), board()
+	Game::Game(int boardSize)
+		: boardSize(boardSize), min(1), max(7), board(boardSize, boardSize)
 	{
 		std::uniform_int_distribution<> dist(min, max - 2);
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < boardSize; i++)
 		{
-			for(int j = 0; j < 5; j++)
+			for(int j = 0; j < boardSize; j++)
 			{
 				board(i, j) = dist(randomSource);
 			}
 		}
-		std::uniform_int_distribution<> positionDist(0, 4);
+		std::uniform_int_distribution<> positionDist(0, boardSize - 1);
 		int x = positionDist(randomSource);
 		int y = positionDist(randomSource);
 		board(y, x) = max - 1;
@@ -45,7 +45,7 @@ namespace plusOne
 		indices.clear();
 		dfsStates.clear();
 
-		mask = maskType::Constant(5, 5, false);
+		mask = maskType::Constant(boardSize, boardSize, false);
 		mask(y, x) = true;
 
 		indices.push_back(std::make_pair(x, y));
@@ -65,7 +65,7 @@ namespace plusOne
 				current.direction++;
 				int newX = current.x + directionX;
 				int newY = current.y + directionY;
-				if(newX < 0 || newY < 0 || newX >= 5 || newY >= 5 || mask(newY, newX) || board(newY, newX) != currentValue)
+				if(newX < 0 || newY < 0 || newX >= boardSize || newY >= boardSize || mask(newY, newX) || board(newY, newX) != currentValue)
 				{
 					continue;
 				}
@@ -83,11 +83,11 @@ namespace plusOne
 		max++;
 		min = std::max(1, max - 8);
 	}
-	void Game::shiftDown(Game::boardType& board)
+	void Game::shiftDown(Game::boardType& board, int boardSize)
 	{
-		for(int column = 0; column < 5; column++)
+		for(int column = 0; column < boardSize; column++)
 		{
-			int row = 4;
+			int row = boardSize - 1;
 			bool allNegativeOne = true;
 			for(int i = 0; i < row; i++) allNegativeOne &= board(i, column) == -1;
 			while(row > 0 and !allNegativeOne)
@@ -106,12 +106,12 @@ namespace plusOne
 			}
 		}
 	}
-	void Game::fill(Game::boardType& board, int min, int max)
+	void Game::fill(Game::boardType& board, int min, int max, int boardSize)
 	{
 		std::uniform_int_distribution<> dist(min, max - 2);
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < boardSize; i++)
 		{
-			for(int j = 0; j < 5; j++)
+			for(int j = 0; j < boardSize; j++)
 			{
 				if(board(i, j) == -1) board(i, j) = dist(randomSource);
 			}
@@ -119,7 +119,7 @@ namespace plusOne
 	}
 	std::pair<Game::boardType, int> Game::simulateClick(int x, int y)
 	{
-		if(x < 0 || y < 0 || x >= 5 || y >= 5)
+		if(x < 0 || y < 0 || x >= boardSize || y >= boardSize)
 		{
 			return std::make_pair(board, max);
 		}
@@ -137,9 +137,9 @@ namespace plusOne
 			{
 				nextLevel = true;
 				int currentMin = copiedBoard.minCoeff();
-				for(int i = 0; i < 5; i++)
+				for(int i = 0; i < boardSize; i++)
 				{
-					for(int j = 0; j < 5; j++)
+					for(int j = 0; j < boardSize; j++)
 					{
 						if(copiedBoard(i, j) == currentMin) copiedBoard(i, j) = -1;
 					}
@@ -150,8 +150,8 @@ namespace plusOne
 				nextLevel = false;
 			}
 			copiedBoard(y, x) = currentValue + 1;
-			shiftDown(copiedBoard);
-			fill(copiedBoard, min + nextLevel, max + nextLevel);
+			shiftDown(copiedBoard, boardSize);
+			fill(copiedBoard, min + nextLevel, max + nextLevel, boardSize);
 			if(nextLevel) return std::make_pair(copiedBoard, max + 1);
 			return std::make_pair(copiedBoard, max);
 		}
@@ -159,7 +159,7 @@ namespace plusOne
 	}
 	int Game::click(int x, int y)
 	{
-		if(x < 0 || y < 0 || x >= 5 || y >= 5)
+		if(x < 0 || y < 0 || x >= boardSize || y >= boardSize)
 		{
 			return -1;
 		}
@@ -176,9 +176,9 @@ namespace plusOne
 			{
 				nextLevel = true;
 				int currentMin = board.minCoeff();
-				for(int i = 0; i < 5; i++)
+				for(int i = 0; i < boardSize; i++)
 				{
-					for(int j = 0; j < 5; j++)
+					for(int j = 0; j < boardSize; j++)
 					{
 						if(board(i, j) == currentMin) board(i, j) = -1;
 					}
@@ -190,8 +190,8 @@ namespace plusOne
 				nextLevel = false;
 			}
 			board(y, x) = currentValue + 1;
-			shiftDown(board);
-			fill(board, min, max);
+			shiftDown(board, boardSize);
+			fill(board, min, max, boardSize);
 			if(nextLevel) return 1;
 			return 0;
 		}
@@ -210,7 +210,7 @@ namespace plusOne
 			intToDirection(directionX, directionY, direction);
 			int newX = x + directionX;
 			int newY = y + directionY;
-			if(newX < 0 || newY < 0 || newX >= 5 || newY >= 5)
+			if(newX < 0 || newY < 0 || newX >= boardSize || newY >= boardSize)
 			{
 				continue;
 			}
@@ -230,5 +230,9 @@ namespace plusOne
 	void Game::setBoard(Game::boardType board)
 	{
 		this->board = board;
+	}
+	int Game::getBoardSize() const
+	{
+		return boardSize;
 	}
 }

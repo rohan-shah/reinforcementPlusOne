@@ -1,10 +1,11 @@
 import numpy as np
 class game:
-    def __init__(self):
-        self._board = np.random.randint(low = 1, high = 7, size = (5, 5)) 
+    def __init__(self, boardSize):
+        self._boardSize = boardSize
+        self._board = np.random.randint(low = 1, high = 7, size = (boardSize, boardSize)) 
         self._min = 1
         self._max = 6
-        self._mask = np.array([False] * 25).reshape((5, 5))
+        self._mask = np.array([False] * boardSize * boardSize).reshape((boardSize, boardSize))
 
     def getIndicesForClick(self, x, y):
         currentValue = self._board[y, x]
@@ -21,7 +22,7 @@ class game:
             else:
                 newX = x + nextDirection[0]
                 newY = y + nextDirection[1]
-                if newX < 0 or newX > 4 or newY < 0 or newY > 4 or self._mask[newY, newX] or self._board[newY, newX] != currentValue:
+                if newX < 0 or newX > self._boardSize - 1 or newY < 0 or newY > self._boardSize - 1 or self._mask[newY, newX] or self._board[newY, newX] != currentValue:
                     next
                 else:
                     self._mask[newY, newX] = True
@@ -32,7 +33,7 @@ class game:
     def click(self, x, y):
         x = int(x)
         y = int(y)
-        if x < 0 or y < 0 or x >= 5 or y >= 5:
+        if x < 0 or y < 0 or x >= self._boardSize or y >= self._boardSize:
             return(-1)
         else:
             currentValue = self._board[y, x]
@@ -43,8 +44,8 @@ class game:
                 if currentValue == self._max:
                     nextLevel = True
                     currentMin = np.min(self._board)
-                    for row in range(0, 5):
-                        for column in range(0, 5):
+                    for row in range(0, self._boardSize):
+                        for column in range(0, self._boardSize):
                             if self._board[row, column] == currentMin:
                                 self._board[row, column] = -1
                     self.increment_range()
@@ -64,8 +65,8 @@ class game:
         self._min = max(1, self._max - 8)
 
     def shift_down(self):
-        for column in range(0, 5):
-            row = 4
+        for column in range(0, self._boardSize):
+            row = self._boardSize - 1
             while row > 0 and ~np.all(self._board[:row, column] == -1):
                 if self._board[row, column] == -1:
                     self._board[range(1, row+1), column] = self._board[range(0, row), column]
@@ -74,18 +75,18 @@ class game:
                     row = row - 1
 
     def fill(self):
-        for column in range(0, 5):
-            for row in range(0, 5):
+        for column in range(0, self._boardSize):
+            for row in range(0, self._boardSize):
                 if self._board[row, column] == -1:
                     self._board[row, column] = np.random.randint(low = self._min, high = self._max)
     
     def isValidMove(self, x, y):
-        if x < 0 or y < 0 or x >= 5 or y >= 5:
+        if x < 0 or y < 0 or x >= self._boardSize or y >= self._boardSize:
             return(False)
         currentValue = self._board[y, x]
         directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         targets = [(direction[0] + y, direction[1] + x) for direction in directions]
-        targets = [(y, x) for (y, x) in targets if not (x < 0 or y < 0 or x >= 5 or y >= 5)]
+        targets = [(y, x) for (y, x) in targets if not (x < 0 or y < 0 or x >= self._boardSize or y >= self._boardSize)]
         values = [self._board[y, x] for (y, x) in targets]
         return(currentValue in values)
 
