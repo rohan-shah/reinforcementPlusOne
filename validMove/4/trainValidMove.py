@@ -5,17 +5,17 @@ import torch
 import torch.nn
 import torch.optim
 import torch.optim.lr_scheduler
-from networkCategorical import plusOneValidMove, standardiseCategorical, standardiseCategoricalSimulated, markMoveInCategorical
+from plusOne.networkCategorical import plusOneValidMove, standardiseCategorical, standardiseCategoricalSimulated, markMoveInCategorical
 #from network import plusOneValidMove, standardiseData
 import numpy as np
 
-games = 20000
+games = 30000
 
 loss_function = torch.nn.CrossEntropyLoss()
 
-boardSize = 3
+boardSize = 4
 
-predicter = plusOneValidMove(nLayers = 8, boardSize = boardSize, nExtra = 3)
+predicter = plusOneValidMove(nLayers = 7, boardSize = boardSize, nExtra = 4)
 
 if os.path.exists("models/validMove"):
     predicter.load_state_dict(torch.load("models/validMove"))

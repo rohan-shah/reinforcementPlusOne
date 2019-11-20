@@ -1,14 +1,14 @@
 import torch
 import plusOne
 from plusOne.networkCategorical import plusOneValidMove, standardiseCategorical, standardiseCategoricalSimulated, categoricalToBoard, markMoveInCategorical
-boardSize = 3
+boardSize = 4
 currentGame = plusOne.libplusOne_python.Game(boardSize)
 import numpy as np
 import time
 
 startingState = currentGame.getBoard()
 
-model = plusOneValidMove(nLayers = 8, boardSize = boardSize, nExtra = 3)
+model = plusOneValidMove(nLayers = 7, boardSize = boardSize, nExtra = 4)
 model.load_state_dict(torch.load("models/validMove"))
 x = 0
 y = 0
