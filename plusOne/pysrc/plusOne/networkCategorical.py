@@ -40,11 +40,11 @@ def categoricalToBoard(encoded, max):
     return(result)
 
 class plusOneValidMove(nn.Module):
-    def __init__(self, nLayers, boardSize):
+    def __init__(self, nLayers, boardSize, nExtra):
         super(plusOneValidMove, self).__init__()
         self._nLayers = nLayers
         self._layers = []
-        layerSize = (boardSize * 3) ** 2
+        layerSize = (boardSize + nExtra) ** 2
         self._layers.append(nn.Linear(boardSize*boardSize*9, layerSize))
         self._layers.extend([nn.Linear(layerSize, layerSize) for layerCounter in range(0, nLayers)])
         self._layers.append(nn.Linear(layerSize, 2))
@@ -54,4 +54,21 @@ class plusOneValidMove(nn.Module):
         for layer in self._layers:
             x = F.leaky_relu(layer(x))
         return(x)
+
+class plusOneValidMoveAll(nn.Module):
+    def __init__(self, nLayers, boardSize, nExtra):
+        super(plusOneValidMoveAll, self).__init__()
+        self._nLayers = nLayers
+        self._layers = []
+        layerSize = (boardSize + nExtra) ** 2
+        self._layers.append(nn.Linear(boardSize*boardSize*9, layerSize))
+        self._layers.extend([nn.Linear(layerSize, layerSize) for layerCounter in range(0, nLayers)])
+        self._layers.append(nn.Linear(layerSize, boardSize*boardSize*2))
+        self._layers = nn.ModuleList(self._layers)
+        self._boardSize = boardSize
+
+    def forward(self, x):
+        for layer in self._layers:
+            x = F.leaky_relu(layer(x))
+        return(x.view(self._boardSize*self._boardSize, 2))
 

@@ -28,6 +28,7 @@ set(PYTHONFILES
     setup.py
     plusOne/__init__.py
     plusOne/game.py
+    plusOne/networkCategorical.py
     )
 
 pybind11_add_module(plusOne_python
