@@ -70,5 +70,5 @@ class plusOneValidMoveAll(nn.Module):
     def forward(self, x):
         for layer in self._layers:
             x = F.leaky_relu(layer(x))
-        return(x.view(self._boardSize*self._boardSize, 2))
+        return(x.view((x.shape[0], self._boardSize*self._boardSize, 2)))
 
