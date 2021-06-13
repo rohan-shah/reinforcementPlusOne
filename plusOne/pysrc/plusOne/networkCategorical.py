@@ -40,11 +40,10 @@ def categoricalToBoard(encoded, max):
     return(result)
 
 class plusOneValidMove(nn.Module):
-    def __init__(self, nLayers, boardSize, nExtra):
+    def __init__(self, nLayers, boardSize, layerSize):
         super(plusOneValidMove, self).__init__()
         self._nLayers = nLayers
         self._layers = []
-        layerSize = (boardSize + nExtra) ** 2
         self._layers.append(nn.Linear(boardSize*boardSize*9, layerSize))
         self._layers.extend([nn.Linear(layerSize, layerSize) for layerCounter in range(0, nLayers)])
         self._layers.append(nn.Linear(layerSize, 2))
@@ -56,11 +55,10 @@ class plusOneValidMove(nn.Module):
         return(x)
 
 class plusOneValidMoveAll(nn.Module):
-    def __init__(self, nLayers, boardSize, nExtra):
+    def __init__(self, nLayers, boardSize, layerSize):
         super(plusOneValidMoveAll, self).__init__()
         self._nLayers = nLayers
         self._layers = []
-        layerSize = (boardSize + nExtra) ** 2
         self._layers.append(nn.Linear(boardSize*boardSize*9, layerSize))
         self._layers.extend([nn.Linear(layerSize, layerSize) for layerCounter in range(0, nLayers)])
         self._layers.append(nn.Linear(layerSize, boardSize*boardSize*2))
