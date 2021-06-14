@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
@@ -59,14 +60,20 @@ class plusOneValidMoveAll(nn.Module):
         super(plusOneValidMoveAll, self).__init__()
         self._nLayers = nLayers
         self._layers = []
-        self._layers.append(nn.Linear(boardSize*boardSize*9, layerSize))
-        self._layers.extend([nn.Linear(layerSize, layerSize) for layerCounter in range(0, nLayers)])
-        self._layers.append(nn.Linear(layerSize, boardSize*boardSize*2))
+        if nLayers > 0:
+            self._layers.append(nn.Linear(boardSize*boardSize*9, layerSize))
+            self._layers.extend([nn.Linear(layerSize, layerSize) for layerCounter in range(0, nLayers)])
+            self._layers.append(nn.Linear(layerSize, boardSize*boardSize))
+        else:
+            self._layers.append(nn.Linear(boardSize*boardSize*9, boardSize*boardSize))
+
         self._layers = nn.ModuleList(self._layers)
         self._boardSize = boardSize
 
     def forward(self, x):
         for layer in self._layers:
             x = F.leaky_relu(layer(x))
-        return(x.view((x.shape[0], self._boardSize*self._boardSize, 2)))
+        x = x.reshape((x.shape[0], self._boardSize*self._boardSize, 1))
+        x = torch.cat((x, torch.zeros(x.shape, dtype = x.dtype)), dim = 2)
+        return(x)
 
